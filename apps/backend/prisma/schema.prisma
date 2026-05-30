@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// Справочник видов работ (заполняется сидами)
+model WorkType {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
+  unit      String // единица измерения: м3, м2, шт, т, ...
+  createdAt DateTime  @default(now()) @map("created_at")
+  workLogs  WorkLog[]
+
+  @@map("work_types")
+}
+
+/// Запись журнала работ на объекте
+model WorkLog {
+  id         Int      @id @default(autoincrement())
+  date       DateTime @db.Date // дата выполнения работ
+  workTypeId Int      @map("work_type_id")
+  workType   WorkType @relation(fields: [workTypeId], references: [id], onDelete: Restrict)
+  volume     Decimal  @db.Decimal(12, 2) // выполненный объём
+  executor   String // ответственный исполнитель / бригада
+  notes      String?  @db.Text // примечания
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@index([date])
+  @@index([workTypeId])
+  @@map("work_logs")
+}

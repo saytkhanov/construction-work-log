@@ -1,0 +1,23 @@
+{
+  "name": "construction-work-log",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Журнал работ на строительном объекте — monorepo (React + Express + Prisma + PostgreSQL)",
+  "workspaces": [
+    "apps/frontend",
+    "apps/backend"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspaces --if-present",
+    "dev:frontend": "npm run dev --workspace apps/frontend",
+    "dev:backend": "npm run dev --workspace apps/backend",
+    "build": "npm run build --workspace apps/backend && npm run build --workspace apps/frontend",
+    "lint": "npm run lint --workspaces --if-present",
+    "prisma:migrate": "npm run prisma:migrate --workspace apps/backend",
+    "prisma:seed": "npm run prisma:seed --workspace apps/backend",
+    "prisma:generate": "npm run prisma:generate --workspace apps/backend"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

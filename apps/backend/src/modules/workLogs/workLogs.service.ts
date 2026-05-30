@@ -1,0 +1,122 @@
+import { Prisma } from '@prisma/client';
+import type { WorkLog, WorkType } from '@prisma/client';
+import { prisma } from '../../lib/prisma';
+import { HttpError } from '../../lib/httpError';
+import type { CreateWorkLogInput, ListWorkLogsQuery, UpdateWorkLogInput } from './workLogs.schemas';
+
+type WorkLogWithType = WorkLog & { workType: WorkType };
+
+/** DTO, отдаваемый наружу: Decimal → number, Date → YYYY-MM-DD. */
+export type WorkLogDto = {
+  id: number;
+  date: string;
+  workTypeId: number;
+  workType: { id: number; name: string; unit: string };
+  volume: number;
+  executor: string;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+function toIsoDate(date: Date): string {
+  return date.toISOString().slice(0, 10);
+}
+
+function serialize(entry: WorkLogWithType): WorkLogDto {
+  return {
+    id: entry.id,
+    date: toIsoDate(entry.date),
+    workTypeId: entry.workTypeId,
+    workType: {
+      id: entry.workType.id,
+      name: entry.workType.name,
+      unit: entry.workType.unit,
+    },
+    volume: entry.volume.toNumber(),
+    executor: entry.executor,
+    notes: entry.notes,
+    createdAt: entry.createdAt.toISOString(),
+    updatedAt: entry.updatedAt.toISOString(),
+  };
+}
+
+async function assertWorkTypeExists(workTypeId: number): Promise<void> {
+  const exists = await prisma.workType.findUnique({ where: { id: workTypeId }, select: { id: true } });
+  if (!exists) {
+    throw HttpError.badRequest('Specified work type does not exist', { workTypeId });
+  }
+}
+
+export const workLogsService = {
+  async list(filters: ListWorkLogsQuery): Promise<WorkLogDto[]> {
+    const where: Prisma.WorkLogWhereInput = {};
+
+    if (filters.workTypeId) {
+      where.workTypeId = filters.workTypeId;
+    }
+    if (filters.dateFrom || filters.dateTo) {
+      where.date = {};
+      if (filters.dateFrom) where.date.gte = new Date(filters.dateFrom);
+      if (filters.dateTo) where.date.lte = new Date(filters.dateTo);
+    }
+
+    const entries = await prisma.workLog.findMany({
+      where,
+      include: { workType: true },
+      orderBy: [{ date: 'desc' }, { id: 'desc' }],
+    });
+
+    return entries.map(serialize);
+  },
+
+  async getById(id: number): Promise<WorkLogDto> {
+    const entry = await prisma.workLog.findUnique({ where: { id }, include: { workType: true } });
+    if (!entry) {
+      throw HttpError.notFound('Work log entry not found');
+    }
+    return serialize(entry);
+  },
+
+  async create(input: CreateWorkLogInput): Promise<WorkLogDto> {
+    await assertWorkTypeExists(input.workTypeId);
+
+    const entry = await prisma.workLog.create({
+      data: {
+        date: new Date(input.date),
+        workTypeId: input.workTypeId,
+        volume: new Prisma.Decimal(input.volume),
+        executor: input.executor,
+        notes: input.notes ? input.notes : null,
+      },
+      include: { workType: true },
+    });
+
+    return serialize(entry);
+  },
+
+  async update(id: number, input: UpdateWorkLogInput): Promise<WorkLogDto> {
+    if (input.workTypeId !== undefined) {
+      await assertWorkTypeExists(input.workTypeId);
+    }
+
+    const data: Prisma.WorkLogUpdateInput = {};
+    if (input.date !== undefined) data.date = new Date(input.date);
+    if (input.workTypeId !== undefined) data.workType = { connect: { id: input.workTypeId } };
+    if (input.volume !== undefined) data.volume = new Prisma.Decimal(input.volume);
+    if (input.executor !== undefined) data.executor = input.executor;
+    if (input.notes !== undefined) data.notes = input.notes ? input.notes : null;
+
+    const entry = await prisma.workLog.update({
+      where: { id },
+      data,
+      include: { workType: true },
+    });
+
+    return serialize(entry);
+  },
+
+  async remove(id: number): Promise<void> {
+    await prisma.workLog.delete({ where: { id } });
+  },
+};
