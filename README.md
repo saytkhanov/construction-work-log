@@ -59,7 +59,7 @@ docker compose up --build
 
 После сборки:
 - **Frontend:** http://localhost:5173
-- **Backend API:** http://localhost:4000/api
+- **Backend API:** http://localhost:3000/api (healthcheck: http://localhost:3000/health)
 - **PostgreSQL:** localhost:5432
 
 Остановить и удалить контейнеры (с данными БД):
@@ -87,7 +87,7 @@ npm run prisma:migrate
 npm run prisma:seed
 
 # 5. Запустить backend и frontend (в разных терминалах)
-npm run dev:backend     # http://localhost:4000
+npm run dev:backend     # http://localhost:3000
 npm run dev:frontend    # http://localhost:5173 (проксирует /api на backend)
 ```
 
@@ -106,17 +106,18 @@ npm run dev:frontend    # http://localhost:5173 (проксирует /api на 
 
 ## API
 
-Базовый префикс: `/api`.
+Healthcheck: `GET /health` → `{ "status": "ok" }` (без префикса).
+
+Остальные ресурсы — под префиксом `/api`:
 
 | Метод  | Путь               | Описание                                  |
 | ------ | ------------------ | ----------------------------------------- |
-| GET    | `/health`          | Проверка живости сервиса                  |
-| GET    | `/work-types`      | Справочник видов работ                     |
-| GET    | `/work-logs`       | Список записей журнала (фильтры в query)   |
-| GET    | `/work-logs/:id`   | Запись по id                              |
-| POST   | `/work-logs`       | Создать запись                            |
-| PATCH  | `/work-logs/:id`   | Обновить запись                           |
-| DELETE | `/work-logs/:id`   | Удалить запись                            |
+| GET    | `/api/work-types`  | Справочник видов работ                     |
+| GET    | `/api/work-logs`     | Список записей журнала (фильтры в query)   |
+| GET    | `/api/work-logs/:id` | Запись по id                              |
+| POST   | `/api/work-logs`     | Создать запись                            |
+| PATCH  | `/api/work-logs/:id` | Обновить запись                           |
+| DELETE | `/api/work-logs/:id` | Удалить запись                            |
 
 Фильтры списка: `workTypeId`, `dateFrom`, `dateTo` (формат `YYYY-MM-DD`).
 

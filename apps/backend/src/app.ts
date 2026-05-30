@@ -14,6 +14,11 @@ export function createApp(): Express {
   app.use(cors({ origin: env.CORS_ORIGIN }));
   app.use(express.json());
 
+  // Healthcheck: верхнеуровневый, простой и стабильный контракт.
+  app.get('/health', (_req, res) => {
+    res.json({ status: 'ok' });
+  });
+
   app.use('/api', apiRouter);
 
   app.use(notFoundHandler);
