@@ -23,7 +23,7 @@ export function useCreateWorkLog() {
 export function useUpdateWorkLog() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, payload }: { id: number; payload: UpdateWorkLogPayload }) =>
+    mutationFn: ({ id, payload }: { id: string; payload: UpdateWorkLogPayload }) =>
       workLogsApi.update(id, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['work-logs'] });
@@ -34,7 +34,7 @@ export function useUpdateWorkLog() {
 export function useDeleteWorkLog() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: number) => workLogsApi.remove(id),
+    mutationFn: (id: string) => workLogsApi.remove(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['work-logs'] });
     },

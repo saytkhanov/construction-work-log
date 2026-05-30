@@ -125,11 +125,12 @@ Healthcheck: `GET /health` → `{ "status": "ok" }` (без префикса).
 
 ```json
 {
-  "date": "2026-05-29",
-  "workTypeId": 3,
+  "date": "2026-05-30",
+  "workTypeId": "cmps9ltv40006i52gt32rcqjq",
   "volume": 12.5,
-  "executor": "Бригада №2",
-  "notes": "Кладка наружных стен, оси 1–4"
+  "unit": "м³",
+  "executorName": "Бригада №2",
+  "comment": "Кладка наружных стен, оси 1–4"
 }
 ```
 
@@ -138,7 +139,11 @@ Healthcheck: `GET /health` → `{ "status": "ok" }` (без префикса).
 
 ## Модель данных
 
-- **WorkType** (`work_types`) — справочник: `name` (уникально), `unit`.
-- **WorkLog** (`work_logs`) — запись журнала: `date`, `workTypeId`, `volume`
-  (`Decimal`), `executor`, `notes`, таймстемпы. Удаление вида работ ограничено,
-  если на него есть ссылки (`onDelete: Restrict`).
+Идентификаторы — строковые `cuid`. Связь: `WorkType` 1 — ∞ `WorkLogEntry`.
+
+- **WorkType** (`work_types`) — справочник: `id`, `name` (уникально),
+  `createdAt`, `updatedAt`.
+- **WorkLogEntry** (`work_log_entries`) — запись журнала: `id`, `date`,
+  `workTypeId`, `volume` (`Decimal`), `unit` (`м³`, `м²`, `шт`, `п.м.` …),
+  `executorName`, `comment` (опц.), `createdAt`, `updatedAt`. Удаление вида
+  работ ограничено, если на него есть ссылки (`onDelete: Restrict`).

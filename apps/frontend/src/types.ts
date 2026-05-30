@@ -1,28 +1,30 @@
 export interface WorkType {
-  id: number;
+  id: string;
   name: string;
-  unit: string;
   createdAt: string;
+  updatedAt: string;
 }
 
-export interface WorkLog {
-  id: number;
+export interface WorkLogEntry {
+  id: string;
   date: string; // YYYY-MM-DD
-  workTypeId: number;
-  workType: Pick<WorkType, 'id' | 'name' | 'unit'>;
+  workTypeId: string;
+  workType: Pick<WorkType, 'id' | 'name'>;
   volume: number;
-  executor: string;
-  notes: string | null;
+  unit: string;
+  executorName: string;
+  comment: string | null;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface CreateWorkLogPayload {
   date: string;
-  workTypeId: number;
+  workTypeId: string;
   volume: number;
-  executor: string;
-  notes?: string;
+  unit: string;
+  executorName: string;
+  comment?: string;
 }
 
 export type UpdateWorkLogPayload = Partial<CreateWorkLogPayload>;

@@ -6,15 +6,18 @@ const dateString = z
   .regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format')
   .refine((value) => !Number.isNaN(Date.parse(value)), 'Invalid calendar date');
 
+const id = z.string().min(1, 'Id is required');
+
 export const createWorkLogSchema = z.object({
   date: dateString,
-  workTypeId: z.coerce.number().int('Work type id must be an integer').positive(),
+  workTypeId: id,
   volume: z.coerce
     .number({ invalid_type_error: 'Volume must be a number' })
     .positive('Volume must be greater than 0')
     .max(9_999_999_999, 'Volume is too large'),
-  executor: z.string().trim().min(1, 'Executor is required').max(200),
-  notes: z.string().trim().max(2000).optional().or(z.literal('')),
+  unit: z.string().trim().min(1, 'Unit is required').max(16),
+  executorName: z.string().trim().min(1, 'Executor name is required').max(200),
+  comment: z.string().trim().max(2000).optional().or(z.literal('')),
 });
 
 // Все поля опциональны при обновлении, но хотя бы одно должно присутствовать.
@@ -24,11 +27,11 @@ export const updateWorkLogSchema = createWorkLogSchema.partial().refine(
 );
 
 export const workLogIdParamSchema = z.object({
-  id: z.coerce.number().int().positive(),
+  id,
 });
 
 export const listWorkLogsQuerySchema = z.object({
-  workTypeId: z.coerce.number().int().positive().optional(),
+  workTypeId: id.optional(),
   dateFrom: dateString.optional(),
   dateTo: dateString.optional(),
 });

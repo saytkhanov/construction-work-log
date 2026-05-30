@@ -18,12 +18,12 @@ export function WorkLogList() {
   const totalsByUnit = useMemo(() => {
     const totals = new Map<string, number>();
     workLogs?.forEach((log) => {
-      totals.set(log.workType.unit, (totals.get(log.workType.unit) ?? 0) + log.volume);
+      totals.set(log.unit, (totals.get(log.unit) ?? 0) + log.volume);
     });
     return Array.from(totals.entries());
   }, [workLogs]);
 
-  const handleDelete = (id: number) => {
+  const handleDelete = (id: string) => {
     if (window.confirm('Удалить запись журнала?')) {
       deleteWorkLog.mutate(id);
     }
@@ -40,7 +40,7 @@ export function WorkLogList() {
             onChange={(event) =>
               setFilters((prev) => ({
                 ...prev,
-                workTypeId: event.target.value ? Number(event.target.value) : undefined,
+                workTypeId: event.target.value || undefined,
               }))
             }
           >
@@ -81,10 +81,10 @@ export function WorkLogList() {
                     <td>{formatDate(log.date)}</td>
                     <td>{log.workType.name}</td>
                     <td className={styles.numeric}>
-                      {log.volume} {log.workType.unit}
+                      {log.volume} {log.unit}
                     </td>
-                    <td>{log.executor}</td>
-                    <td className={styles.notes}>{log.notes ?? '—'}</td>
+                    <td>{log.executorName}</td>
+                    <td className={styles.notes}>{log.comment ?? '—'}</td>
                     <td className={styles.actions}>
                       <button
                         type="button"

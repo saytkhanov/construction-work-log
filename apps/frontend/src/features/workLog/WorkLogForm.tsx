@@ -1,6 +1,10 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { workLogFormSchema, type WorkLogFormValues } from './workLogForm.schema';
+import {
+  UNIT_OPTIONS,
+  workLogFormSchema,
+  type WorkLogFormValues,
+} from './workLogForm.schema';
 import { useWorkTypes } from '../../hooks/useWorkTypes';
 import { useCreateWorkLog } from '../../hooks/useWorkLogs';
 import { ApiError } from '../../api/client';
@@ -9,6 +13,15 @@ import styles from './WorkLogForm.module.css';
 function today(): string {
   return new Date().toISOString().slice(0, 10);
 }
+
+const emptyValues: WorkLogFormValues = {
+  date: today(),
+  workTypeId: '',
+  volume: '',
+  unit: '',
+  executorName: '',
+  comment: '',
+};
 
 export function WorkLogForm() {
   const { data: workTypes, isLoading: workTypesLoading } = useWorkTypes();
@@ -21,18 +34,19 @@ export function WorkLogForm() {
     formState: { errors, isSubmitting },
   } = useForm<WorkLogFormValues>({
     resolver: zodResolver(workLogFormSchema),
-    defaultValues: { date: today(), workTypeId: '', volume: '', executor: '', notes: '' },
+    defaultValues: emptyValues,
   });
 
   const onSubmit = handleSubmit(async (values) => {
     await createWorkLog.mutateAsync({
       date: values.date,
-      workTypeId: Number(values.workTypeId),
+      workTypeId: values.workTypeId,
       volume: Number(values.volume.replace(',', '.')),
-      executor: values.executor,
-      notes: values.notes || undefined,
+      unit: values.unit,
+      executorName: values.executorName,
+      comment: values.comment || undefined,
     });
-    reset({ date: values.date, workTypeId: '', volume: '', executor: '', notes: '' });
+    reset({ ...emptyValues, date: values.date });
   });
 
   return (
@@ -52,7 +66,7 @@ export function WorkLogForm() {
             <option value="">— выберите —</option>
             {workTypes?.map((workType) => (
               <option key={workType.id} value={workType.id}>
-                {workType.name} ({workType.unit})
+                {workType.name}
               </option>
             ))}
           </select>
@@ -72,14 +86,27 @@ export function WorkLogForm() {
         </label>
 
         <label className={styles.field}>
+          <span className={styles.label}>Ед. изм.</span>
+          <select {...register('unit')} className={styles.input}>
+            <option value="">— выберите —</option>
+            {UNIT_OPTIONS.map((unit) => (
+              <option key={unit} value={unit}>
+                {unit}
+              </option>
+            ))}
+          </select>
+          {errors.unit && <span className={styles.error}>{errors.unit.message}</span>}
+        </label>
+
+        <label className={styles.field}>
           <span className={styles.label}>Исполнитель</span>
           <input
             type="text"
             placeholder="Бригада / ответственный"
-            {...register('executor')}
+            {...register('executorName')}
             className={styles.input}
           />
-          {errors.executor && <span className={styles.error}>{errors.executor.message}</span>}
+          {errors.executorName && <span className={styles.error}>{errors.executorName.message}</span>}
         </label>
 
         <label className={`${styles.field} ${styles.fieldWide}`}>
@@ -87,10 +114,10 @@ export function WorkLogForm() {
           <textarea
             rows={2}
             placeholder="Необязательно"
-            {...register('notes')}
+            {...register('comment')}
             className={styles.input}
           />
-          {errors.notes && <span className={styles.error}>{errors.notes.message}</span>}
+          {errors.comment && <span className={styles.error}>{errors.comment.message}</span>}
         </label>
       </div>
 

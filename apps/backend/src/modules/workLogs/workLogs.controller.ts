@@ -9,7 +9,7 @@ export const workLogsController = {
   },
 
   async getById(req: Request, res: Response) {
-    const entry = await workLogsService.getById(Number(req.params.id));
+    const entry = await workLogsService.getById(req.params.id);
     res.json(entry);
   },
 
@@ -19,12 +19,12 @@ export const workLogsController = {
   },
 
   async update(req: Request, res: Response) {
-    const entry = await workLogsService.update(Number(req.params.id), req.body as UpdateWorkLogInput);
+    const entry = await workLogsService.update(req.params.id, req.body as UpdateWorkLogInput);
     res.json(entry);
   },
 
   async remove(req: Request, res: Response) {
-    await workLogsService.remove(Number(req.params.id));
+    await workLogsService.remove(req.params.id);
     res.status(204).send();
   },
 };
