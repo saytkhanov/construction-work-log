@@ -31,3 +31,6 @@ yarn-error.log*
 # Misc
 coverage/
 .cache/
+
+# TypeScript incremental build cache
+*.tsbuildinfo

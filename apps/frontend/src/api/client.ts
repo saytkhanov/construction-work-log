@@ -1,18 +1,23 @@
 /**
- * Тонкий типизированный обёртка над fetch.
- * Базовый путь — относительный /api: в dev его проксирует Vite, в проде — nginx.
+ * Тонкая типизированная обёртка над fetch.
+ *
+ * Базовый URL берётся из VITE_API_URL (например http://localhost:3000).
+ * Если переменная не задана — используется относительный путь, который
+ * в dev проксирует Vite, а в Docker — nginx.
  */
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? '/api';
+const API_URL = import.meta.env.VITE_API_URL ?? '';
+const API_BASE = `${API_URL}/api`;
 
 export class ApiError extends Error {
   readonly status: number;
-  readonly details?: unknown;
+  /** Карта ошибок валидации по полям, если backend её вернул. */
+  readonly errors?: Record<string, string[]>;
 
-  constructor(status: number, message: string, details?: unknown) {
+  constructor(status: number, message: string, errors?: Record<string, string[]>) {
     super(message);
     this.name = 'ApiError';
     this.status = status;
-    this.details = details;
+    this.errors = errors;
   }
 }
 
@@ -29,8 +34,8 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const payload = await response.json().catch(() => null);
 
   if (!response.ok) {
-    const message = payload?.error?.message ?? `Request failed with status ${response.status}`;
-    throw new ApiError(response.status, message, payload?.error?.details);
+    const message = payload?.message ?? `Request failed with status ${response.status}`;
+    throw new ApiError(response.status, message, payload?.errors);
   }
 
   return payload as T;

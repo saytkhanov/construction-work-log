@@ -110,32 +110,47 @@ Healthcheck: `GET /health` → `{ "status": "ok" }` (без префикса).
 
 Остальные ресурсы — под префиксом `/api`:
 
-| Метод  | Путь               | Описание                                  |
-| ------ | ------------------ | ----------------------------------------- |
-| GET    | `/api/work-types`  | Справочник видов работ                     |
-| GET    | `/api/work-logs`     | Список записей журнала (фильтры в query)   |
-| GET    | `/api/work-logs/:id` | Запись по id                              |
-| POST   | `/api/work-logs`     | Создать запись                            |
-| PATCH  | `/api/work-logs/:id` | Обновить запись                           |
-| DELETE | `/api/work-logs/:id` | Удалить запись                            |
+| Метод  | Путь                       | Описание                                  |
+| ------ | -------------------------- | ----------------------------------------- |
+| GET    | `/api/work-types`          | Справочник видов работ (сортировка по имени) |
+| GET    | `/api/work-log-entries`    | Список записей журнала (фильтры в query)   |
+| GET    | `/api/work-log-entries/:id`| Запись по id                              |
+| POST   | `/api/work-log-entries`    | Создать запись                            |
+| PATCH  | `/api/work-log-entries/:id`| Обновить запись                           |
+| DELETE | `/api/work-log-entries/:id`| Удалить запись                            |
 
-Фильтры списка: `workTypeId`, `dateFrom`, `dateTo` (формат `YYYY-MM-DD`).
+Query-параметры списка (все опциональны):
+- `dateFrom`, `dateTo` — границы по дате (формат `YYYY-MM-DD`);
+- `sortOrder` — `asc` или `desc` (по умолчанию `desc`), сортировка по дате;
+- `workTypeId` — фильтр по виду работ.
+
+Пример: `GET /api/work-log-entries?dateFrom=2026-05-01&dateTo=2026-05-29&sortOrder=desc`
 
 Тело запроса на создание записи:
 
 ```json
 {
-  "date": "2026-05-30",
+  "date": "2026-05-29",
   "workTypeId": "cmps9ltv40006i52gt32rcqjq",
-  "volume": 12.5,
+  "volume": 24,
   "unit": "м³",
-  "executorName": "Бригада №2",
-  "comment": "Кладка наружных стен, оси 1–4"
+  "executorName": "Иванов Иван",
+  "comment": "optional"
 }
 ```
 
-Все входные данные валидируются на backend через Zod; ошибки возвращаются в
-формате `{ "error": { "message": "...", "details": { ... } } }`.
+Валидация (backend, Zod): `date`, `workTypeId`, `unit` обязательны; `volume` —
+число больше 0; `executorName` — минимум 2 символа; `comment` опционален.
+
+Ошибки возвращаются в едином формате:
+
+```json
+{ "message": "Validation error", "errors": { "volume": ["Volume must be greater than 0"] } }
+```
+
+```json
+{ "message": "Work log entry not found" }
+```
 
 ## Модель данных
 

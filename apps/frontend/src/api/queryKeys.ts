@@ -1,6 +1,7 @@
-import type { WorkLogFilters } from './workLogs';
+import type { WorkLogEntriesFilters } from './workLogEntries';
 
 export const queryKeys = {
   workTypes: ['work-types'] as const,
-  workLogs: (filters: WorkLogFilters = {}) => ['work-logs', filters] as const,
+  workLogEntries: (filters: WorkLogEntriesFilters = {}) =>
+    ['work-log-entries', filters] as const,
 };

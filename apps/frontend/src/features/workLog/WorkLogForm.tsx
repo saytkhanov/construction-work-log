@@ -6,7 +6,7 @@ import {
   type WorkLogFormValues,
 } from './workLogForm.schema';
 import { useWorkTypes } from '../../hooks/useWorkTypes';
-import { useCreateWorkLog } from '../../hooks/useWorkLogs';
+import { useCreateWorkLogEntry } from '../../hooks/useWorkLogEntries';
 import { ApiError } from '../../api/client';
 import styles from './WorkLogForm.module.css';
 
@@ -25,7 +25,7 @@ const emptyValues: WorkLogFormValues = {
 
 export function WorkLogForm() {
   const { data: workTypes, isLoading: workTypesLoading } = useWorkTypes();
-  const createWorkLog = useCreateWorkLog();
+  const createWorkLog = useCreateWorkLogEntry();
 
   const {
     register,

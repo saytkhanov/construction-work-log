@@ -1,19 +1,20 @@
 import { useMemo, useState } from 'react';
-import { useWorkLogs, useDeleteWorkLog } from '../../hooks/useWorkLogs';
+import { useWorkLogEntries, useDeleteWorkLogEntry } from '../../hooks/useWorkLogEntries';
 import { useWorkTypes } from '../../hooks/useWorkTypes';
-import type { WorkLogFilters } from '../../api/workLogs';
+import type { WorkLogEntriesFilters } from '../../api/workLogEntries';
 import styles from './WorkLogList.module.css';
 
 function formatDate(iso: string): string {
-  const [year, month, day] = iso.split('-');
+  // date приходит как ISO datetime — берём календарную часть YYYY-MM-DD.
+  const [year, month, day] = iso.slice(0, 10).split('-');
   return `${day}.${month}.${year}`;
 }
 
 export function WorkLogList() {
-  const [filters, setFilters] = useState<WorkLogFilters>({});
+  const [filters, setFilters] = useState<WorkLogEntriesFilters>({});
   const { data: workTypes } = useWorkTypes();
-  const { data: workLogs, isLoading, isError } = useWorkLogs(filters);
-  const deleteWorkLog = useDeleteWorkLog();
+  const { data: workLogs, isLoading, isError } = useWorkLogEntries(filters);
+  const deleteWorkLog = useDeleteWorkLogEntry();
 
   const totalsByUnit = useMemo(() => {
     const totals = new Map<string, number>();

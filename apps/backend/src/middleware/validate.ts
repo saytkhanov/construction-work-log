@@ -22,7 +22,7 @@ export function validate(schemas: ValidationTargets) {
       next();
     } catch (error) {
       if (error instanceof ZodError) {
-        next(HttpError.badRequest('Validation failed', error.flatten().fieldErrors));
+        next(HttpError.badRequest('Validation error', error.flatten().fieldErrors));
         return;
       }
       next(error);

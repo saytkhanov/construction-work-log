@@ -16,7 +16,7 @@ export const createWorkLogSchema = z.object({
     .positive('Volume must be greater than 0')
     .max(9_999_999_999, 'Volume is too large'),
   unit: z.string().trim().min(1, 'Unit is required').max(16),
-  executorName: z.string().trim().min(1, 'Executor name is required').max(200),
+  executorName: z.string().trim().min(2, 'Executor name must be at least 2 characters').max(200),
   comment: z.string().trim().max(2000).optional().or(z.literal('')),
 });
 
@@ -34,6 +34,7 @@ export const listWorkLogsQuerySchema = z.object({
   workTypeId: id.optional(),
   dateFrom: dateString.optional(),
   dateTo: dateString.optional(),
+  sortOrder: z.enum(['asc', 'desc']).default('desc'),
 });
 
 export type CreateWorkLogInput = z.infer<typeof createWorkLogSchema>;

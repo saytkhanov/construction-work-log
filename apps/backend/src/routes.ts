@@ -5,6 +5,6 @@ import { workLogsRouter } from './modules/workLogs/workLogs.routes';
 const apiRouter = Router();
 
 apiRouter.use('/work-types', workTypesRouter);
-apiRouter.use('/work-logs', workLogsRouter);
+apiRouter.use('/work-log-entries', workLogsRouter);
 
 export { apiRouter };

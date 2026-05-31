@@ -7,7 +7,7 @@ export interface WorkType {
 
 export interface WorkLogEntry {
   id: string;
-  date: string; // YYYY-MM-DD
+  date: string; // ISO datetime, например "2026-05-29T00:00:00.000Z"
   workTypeId: string;
   workType: Pick<WorkType, 'id' | 'name'>;
   volume: number;
@@ -18,8 +18,8 @@ export interface WorkLogEntry {
   updatedAt: string;
 }
 
-export interface CreateWorkLogPayload {
-  date: string;
+export interface CreateWorkLogEntryPayload {
+  date: string; // YYYY-MM-DD
   workTypeId: string;
   volume: number;
   unit: string;
@@ -27,4 +27,4 @@ export interface CreateWorkLogPayload {
   comment?: string;
 }
 
-export type UpdateWorkLogPayload = Partial<CreateWorkLogPayload>;
+export type UpdateWorkLogEntryPayload = Partial<CreateWorkLogEntryPayload>;

@@ -20,14 +20,10 @@ export type WorkLogEntryDto = {
   updatedAt: string;
 };
 
-function toIsoDate(date: Date): string {
-  return date.toISOString().slice(0, 10);
-}
-
 function serialize(entry: WorkLogEntryWithType): WorkLogEntryDto {
   return {
     id: entry.id,
-    date: toIsoDate(entry.date),
+    date: entry.date.toISOString(),
     workTypeId: entry.workTypeId,
     workType: {
       id: entry.workType.id,
@@ -45,7 +41,9 @@ function serialize(entry: WorkLogEntryWithType): WorkLogEntryDto {
 async function assertWorkTypeExists(workTypeId: string): Promise<void> {
   const exists = await prisma.workType.findUnique({ where: { id: workTypeId }, select: { id: true } });
   if (!exists) {
-    throw HttpError.badRequest('Specified work type does not exist', { workTypeId });
+    throw HttpError.badRequest('Validation error', {
+      workTypeId: ['Specified work type does not exist'],
+    });
   }
 }
 
@@ -65,7 +63,7 @@ export const workLogsService = {
     const entries = await prisma.workLogEntry.findMany({
       where,
       include: { workType: true },
-      orderBy: [{ date: 'desc' }, { createdAt: 'desc' }],
+      orderBy: [{ date: filters.sortOrder }, { createdAt: filters.sortOrder }],
     });
 
     return entries.map(serialize);
