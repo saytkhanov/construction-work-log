@@ -58,6 +58,12 @@
   color: var(--danger);
 }
 
+.submitSuccess {
+  margin: 14px 0 0;
+  font-size: 13px;
+  color: var(--success);
+}
+
 .submit {
   margin-top: 16px;
   font: inherit;

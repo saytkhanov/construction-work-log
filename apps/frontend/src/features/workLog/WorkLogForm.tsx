@@ -55,7 +55,7 @@ export function WorkLogForm() {
 
       <div className={styles.grid}>
         <label className={styles.field}>
-          <span className={styles.label}>Дата</span>
+          <span className={styles.label}>Дата выполнения</span>
           <input type="date" {...register('date')} className={styles.input} />
           {errors.date && <span className={styles.error}>{errors.date.message}</span>}
         </label>
@@ -76,9 +76,11 @@ export function WorkLogForm() {
         <label className={styles.field}>
           <span className={styles.label}>Объём</span>
           <input
-            type="text"
+            type="number"
+            min="0"
+            step="any"
             inputMode="decimal"
-            placeholder="например, 12.5"
+            placeholder="например, 24"
             {...register('volume')}
             className={styles.input}
           />
@@ -86,7 +88,7 @@ export function WorkLogForm() {
         </label>
 
         <label className={styles.field}>
-          <span className={styles.label}>Ед. изм.</span>
+          <span className={styles.label}>Единица измерения</span>
           <select {...register('unit')} className={styles.input}>
             <option value="">— выберите —</option>
             {UNIT_OPTIONS.map((unit) => (
@@ -99,10 +101,10 @@ export function WorkLogForm() {
         </label>
 
         <label className={styles.field}>
-          <span className={styles.label}>Исполнитель</span>
+          <span className={styles.label}>ФИО исполнителя</span>
           <input
             type="text"
-            placeholder="Бригада / ответственный"
+            placeholder="например, Иванов Иван"
             {...register('executorName')}
             className={styles.input}
           />
@@ -110,7 +112,7 @@ export function WorkLogForm() {
         </label>
 
         <label className={`${styles.field} ${styles.fieldWide}`}>
-          <span className={styles.label}>Примечание</span>
+          <span className={styles.label}>Комментарий</span>
           <textarea
             rows={2}
             placeholder="Необязательно"
@@ -122,10 +124,16 @@ export function WorkLogForm() {
       </div>
 
       {createWorkLog.isError && (
-        <p className={styles.submitError}>
+        <p className={styles.submitError} role="alert">
           {createWorkLog.error instanceof ApiError
             ? createWorkLog.error.message
             : 'Не удалось сохранить запись'}
+        </p>
+      )}
+
+      {createWorkLog.isSuccess && !createWorkLog.isError && (
+        <p className={styles.submitSuccess} role="status">
+          Запись добавлена в журнал.
         </p>
       )}
 

@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
-/** Распространённые единицы измерения для выпадающего списка. */
-export const UNIT_OPTIONS = ['м³', 'м²', 'м', 'шт', 'п.м.', 'т', 'кг'] as const;
+/** Единицы измерения для выпадающего списка. */
+export const UNIT_OPTIONS = ['м³', 'м²', 'м.п.', 'шт', 'т', 'кг'] as const;
 
 /**
  * Схема валидации формы записи журнала.
@@ -23,7 +23,11 @@ export const workLogFormSchema = z.object({
       return Number.isFinite(parsed) && parsed > 0;
     }, 'Объём должен быть числом больше 0'),
   unit: z.string().min(1, 'Выберите единицу измерения'),
-  executorName: z.string().trim().min(1, 'Укажите исполнителя').max(200, 'Слишком длинное значение'),
+  executorName: z
+    .string()
+    .trim()
+    .min(2, 'ФИО исполнителя — минимум 2 символа')
+    .max(200, 'Слишком длинное значение'),
   comment: z.string().trim().max(2000, 'Слишком длинное примечание').optional(),
 });
 
